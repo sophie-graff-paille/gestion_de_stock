@@ -6,6 +6,8 @@ window = Tk()
 window.title("Tableau de bord")
 window.geometry("900x600")
 
+
+
 # connexion à la base de données
 conn = mysql.connector.connect(
     host = "localhost",
@@ -15,6 +17,7 @@ conn = mysql.connector.connect(
 
 # créer un curseur
 cursor = conn.cursor()
+
 
 conn.commit() # enregistrer les changements
 conn.close() # fermer la connexion
@@ -127,10 +130,28 @@ desc_entry.grid(row=1, column=3, padx=10, pady=10)
     
 # supprimer un produit
 def supp_1_produit():
+    conn = mysql.connector.connect(
+    host = "localhost",
+    user = "root",
+    password = "sophie",
+    database = "boutique")
+
+    cursor = conn.cursor()
+
     x = my_tree.selection()[0] # sélectionner un produit
+    # supprimer le produit sélectionné
+    i = int(x)+1
+    supr_req = f"delete from produit where id = {i}"
+    print(x)
+
+    cursor.execute(supr_req)
+    conn.commit()
+    conn.close()
+    
     my_tree.delete(x) # supprimer le produit sélectionné
 
-# supprimer tous les produit
+
+# supprimer tous les produit de l'affichage
 def supp_all():
     for produit in my_tree.get_children(): # sélectionner tous les produits
         my_tree.delete(produit) # supprimer tous les produits sélectionnés
@@ -176,7 +197,7 @@ def ajouter_produit():
 
     cursor = conn.cursor()
 
-    ajout = "INSERT INTO produit (nom, description, prix, quantité, id_catégorie) VALUES (id_entry.get(), nom_entry.get(), desc_entry.get(), prix_entry.get(), quant_entry.get(), cat_entry.get())"
+    ajout = f'INSERT INTO produit (nom, description, prix, quantité, id_catégorie) VALUES ("{nom_entry.get()}", "{desc_entry.get()}", {prix_entry.get()}, {quant_entry.get()}, {cat_entry.get()})'
     cursor.execute(ajout)
     conn.commit()
     conn.close()
@@ -184,6 +205,7 @@ def ajouter_produit():
     my_tree.delete(*my_tree.get_children())
     
     query_database()
+    clear_entries()
 
 # ajouter des boutons
 button_frame = LabelFrame(window, text="Commandes")
